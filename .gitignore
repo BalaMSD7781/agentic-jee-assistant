@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+.venv/
+.venv-validation/
+__pycache__/
+.crewai/
+output/
+experiments/artifacts/
+.local/
+.pytest_cache/
+*.pyc

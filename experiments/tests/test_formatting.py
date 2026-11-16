@@ -1,0 +1,68 @@
+import unittest
+
+from agentic_jee_system.presentation import formula_block, student_text, presentation_blocks
+
+
+class StudentFormattingTests(unittest.TestCase):
+    def test_multiline_display_and_expression_without_equals(self):
+        text = r'''Text before.
+$$
+\begin{aligned}
+x &= 2 \\
+y &= 3
+\end{aligned}
+$$
+Then evaluate:
+$$\frac{3}{4}$$'''
+        blocks = list(presentation_blocks(text))
+        equations = [value for kind, value in blocks if kind == 'latex']
+        self.assertEqual(len(equations), 2)
+        self.assertIn(r'\end{aligned}', equations[0])
+        self.assertEqual(equations[1], r'\frac{3}{4}')
+    def test_incline_equations_and_numbered_prose_render_separately(self):
+        text = r'''**Solution**
+1. Let the length of the incline be $L$.
+a_s = g\sin\theta
+$$
+2. With kinetic friction the net acceleration is
+$$
+a_r = g\bigl(\sin\theta-\mu\cos\theta\bigr)
+3. For constant acceleration the time to travel distance $L$ is
+t_s = \sqrt{\frac{2L}{a_s}}
+t_r = \sqrt{\frac{2L}{a_r}}
+$$\mu = \frac{3}{4} = 0.75$$
+**Answer: option (c).**'''
+        blocks = list(presentation_blocks(text))
+        equations = [value for kind, value in blocks if kind == 'latex']
+        self.assertEqual(len(equations), 5)
+        self.assertIn(r'a_s = g\sin\theta', equations)
+        self.assertTrue(all('$' not in equation for equation in equations))
+        prose = '\n'.join(value for kind, value in blocks if kind == 'markdown')
+        self.assertIn('With kinetic friction', prose)
+        self.assertIn('For constant acceleration', prose)
+        self.assertIn('option (c)', prose)
+    def test_spaced_arrow_chain_has_no_dangling_backslashes(self):
+        value = student_text(r"$$t=\sqrt{2s/a}\;\Rightarrow\; a_s=4a_r$$")
+        self.assertEqual(value, "$$\nt=\\sqrt{2s/a}\n$$\n\n$$\na_s=4a_r\n$$")
+        self.assertNotIn("\\$$", value)
+        self.assertEqual(student_text(value), value)
+
+    def test_spacing_between_display_blocks_cannot_make_triple_dollars(self):
+        value = student_text(r"$$x=1$$\;\quad$$y=2$$")
+        self.assertNotIn("$$$", value)
+        self.assertNotIn(r"\quad", value)
+        self.assertEqual(student_text(value), value)
+    def test_formula_does_not_repeat_arrow_derivation(self):
+        self.assertEqual(formula_block(r"2x + 5 = 15 ;\Rightarrow; 2x = 10 ;\Rightarrow; x = \frac{10}{2} = 5"),
+                         "$$\n2x + 5 = 15\n$$")
+
+    def test_unwrapped_fraction_is_renderable(self):
+        self.assertEqual(student_text(r"Divide both sides by 2: x = \frac{10}{2} = 5"),
+                         r"Divide both sides by 2: x = $\frac{10}{2}$ = 5")
+
+    def test_existing_physics_math_and_units_are_preserved(self):
+        text = r"Use kinetic energy: $K = \frac{1}{2}mv^2$. The answer is $400\,\text{J}$."
+        self.assertEqual(student_text(text), text)
+
+    def test_arrows_inside_math_are_separate_equations(self):
+        self.assertEqual(student_text(r"$2x=10 \Rightarrow x=5$"), "$2x=10$\n\n$x=5$")

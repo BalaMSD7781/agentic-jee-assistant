@@ -1,0 +1,31 @@
+[project]
+name = "agentic_jee_system"
+version = "0.1.0"
+description = "Multi-agent JEE tutor and educational fact-checker built with CrewAI"
+authors = [{ name = "Agentic JEE Assistant team" }]
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "crewai[litellm]>=1.15.22,<2.0.0",
+    "streamlit>=1.64.0",
+    "pydantic>=2.11,<3",
+    "python-dotenv>=1.0,<2",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.30,<1",
+    "httpx>=0.27,<1",
+    "pillow>=11,<13",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_jee_system"]
+
+[tool.crewai]
+type = "flow"
+definition = "experiments/legacy/flow.json"
+project_id = "6c83f31a-efc4-4859-ae41-24a7bb93d675"
+
+[tool.uv]
+override-dependencies = ["litellm<=1.82.6"]
