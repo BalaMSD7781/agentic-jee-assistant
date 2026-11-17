@@ -2,8 +2,6 @@
 
 A multi-agent tutor for **JEE Mathematics, Physics and Chemistry**. Separate CrewAI agents analyze a question, solve it step by step and review the solution. The app also has an **educational fact-checking** mode, which splits a statement into claims and checks each one against retrieved evidence. Questions can be typed or uploaded as an image.
 
-> Team project for the *Agentic AI for Enterprise* industry-oriented course at Madras Institute of Technology, Anna University. The original repository is [`thortara1812/jee_question_analyzer`](https://github.com/thortara1812/jee_question_analyzer). My contribution was the **educational fact-checking agent**.
-
 ## Features
 
 - **Three-agent solving pipeline.** The *Analyzer* classifies the subject, topic and question type and states any assumptions. The *Solver* writes a step-by-step solution. An independent *Reviewer* recomputes the key steps. A rejected solution gets one correction and a fresh review.
